@@ -3,11 +3,10 @@ package handlers
 import (
 	"encoding/json"
 	"net/http"
-	"os"
-	"time"
 
-	"github.com/dgrijalva/jwt-go"
 	"github.com/smalake/kakebo-api/model"
+	"github.com/smalake/kakebo-api/utils/jwt"
+	"github.com/smalake/kakebo-api/utils/logging"
 )
 
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
@@ -19,13 +18,14 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// パスワードを検証し、認証に成功すればJWTを生成する
-	if user.Password == model.GetPassword(user.Email) {
+	pass, err := model.GetPassword(user.Email)
+	if err != nil {
+		logging.WriteErrorLog(err.Error(), true)
+		return
+	}
+	if user.Password == pass {
 		// JWTの生成
-		token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-			"email": user.Email,
-			"exp":   time.Now().Add(time.Hour * 168).Unix(), //有効期限1週間
-		})
-		tokenString, err := token.SignedString([]byte(os.Getenv("JWT_SECRET")))
+		tokenString, err := jwt.CreateJWT(user.Email)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			return

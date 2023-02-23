@@ -9,6 +9,7 @@ import (
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gorilla/sessions"
 	"github.com/smalake/kakebo-api/model"
+	"github.com/smalake/kakebo-api/utils/logging"
 )
 
 // セッション用のストア
@@ -45,7 +46,11 @@ func AuthCheck(next http.HandlerFunc) http.HandlerFunc {
 		if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
 			email := claims["email"].(string)
 			// 抽出したメールアドレスからユーザIDを取得
-			id := model.GetUserId(email)
+			id, err := model.GetUserId(email)
+			if err != nil {
+				logging.WriteErrorLog(err.Error(), true)
+				return
+			}
 			// セッションを開始
 			session, _ := store.Get(r, os.Getenv("SESSION_NAME"))
 			session.Values["id"] = id //ユーザIDをセッションに保存
