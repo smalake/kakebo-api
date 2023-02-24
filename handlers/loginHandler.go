@@ -18,7 +18,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// パスワードを検証し、認証に成功すればJWTを生成する
-	pass, err := model.GetPassword(user.Email)
+	pass, err := user.GetPassword()
 	if err != nil {
 		logging.WriteErrorLog(err.Error(), true)
 		return

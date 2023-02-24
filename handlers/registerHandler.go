@@ -19,15 +19,17 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// ユーザの新規登録
-	err2 := model.RegisterUser(user)
+	err2 := user.RegisterUser()
 	if err2 != nil {
 		logging.WriteErrorLog(err2.Error(), true)
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
 	// JWTの生成
 	tokenString, err := jwt.CreateJWT(user.Email)
 	if err != nil {
+		logging.WriteErrorLog(err.Error(), true)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}

@@ -3,7 +3,7 @@ package model
 import "github.com/smalake/kakebo-api/utils/logging"
 
 // ログイン用にパスワードを取得する
-func GetPassword(email string) (string, error) {
+func (u *User) GetPassword() (string, error) {
 	db := ConnectDB()
 	sqlDb, err := db.DB() //コネクションクローズ用
 	if err != nil {
@@ -12,7 +12,7 @@ func GetPassword(email string) (string, error) {
 	defer sqlDb.Close()
 
 	var password string
-	err = db.Table("users").Select("password").Where("email = ?", email).Scan(&password).Error
+	err = db.Table("users").Select("password").Where("email = ?", u.Email).Scan(&password).Error
 	if err != nil {
 		logging.WriteErrorLog(err.Error(), true)
 		return "login error", err
@@ -41,7 +41,7 @@ func GetUserId(email string) (int, error) {
 }
 
 // ユーザを新規登録する
-func RegisterUser(user User) error {
+func (u *User) RegisterUser() error {
 	db := ConnectDB()
 	sqlDb, err := db.DB() //コネクションクローズ用
 	if err != nil {
@@ -50,7 +50,7 @@ func RegisterUser(user User) error {
 	}
 	defer sqlDb.Close()
 
-	err = db.Table("users").Create(user).Error
+	err = db.Table("users").Create(u).Error
 	if err != nil {
 		logging.WriteErrorLog(err.Error(), true)
 		return err
