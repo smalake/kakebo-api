@@ -8,6 +8,7 @@ import (
 	"github.com/smalake/kakebo-api/model"
 	"github.com/smalake/kakebo-api/utils/jwt"
 	"github.com/smalake/kakebo-api/utils/logging"
+	"golang.org/x/crypto/bcrypt"
 )
 
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
@@ -26,19 +27,24 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, err)
 		return
 	}
-	if user.Password == pass {
-		// JWTの生成
-		tokenString, err := jwt.CreateJWT(user.Email)
-		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			fmt.Fprintln(w, err)
-			return
-		}
-
-		// JWTをクライアントに返す
-		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(map[string]string{"token": tokenString})
-	} else {
+	err = bcrypt.CompareHashAndPassword([]byte(pass), []byte(user.Password)) //ハッシュ化されたパスワードを比較
+	// パスワードが一致しなかった場合
+	if err != nil {
 		w.WriteHeader(http.StatusUnauthorized)
+		fmt.Fprintln(w, err)
+		return
 	}
+
+	// JWTの生成
+	tokenString, err := jwt.CreateJWT(user.Email)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		fmt.Fprintln(w, err)
+		return
+	}
+
+	// JWTをクライアントに返す
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]string{"token": tokenString})
+
 }

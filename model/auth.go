@@ -3,6 +3,8 @@ package model
 import (
 	"errors"
 
+	"golang.org/x/crypto/bcrypt"
+
 	"github.com/smalake/kakebo-api/utils/logging"
 )
 
@@ -11,7 +13,7 @@ func (u *User) RegisterUser() error {
 	db := ConnectDB()
 	sqlDb, err := db.DB() //コネクションクローズ用
 	if err != nil {
-		return err
+		return errors.New("DBとの接続に失敗しました。")
 	}
 	defer sqlDb.Close()
 
@@ -22,6 +24,14 @@ func (u *User) RegisterUser() error {
 		return err
 	}
 
+	// パスワードをハッシュ化
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(u.Password), bcrypt.DefaultCost)
+	if err != nil {
+		return err
+	}
+	u.Password = string(hashedPassword)
+
+	// DBへと登録
 	err = db.Table("users").Create(u).Error
 	if err != nil {
 		return err

@@ -6,6 +6,7 @@ import (
 	"github.com/smalake/kakebo-api/utils/logging"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
 // DB接続
@@ -36,7 +37,7 @@ import (
 //	}
 func ConnectDB() *gorm.DB {
 	dsn := os.Getenv("DB_DSN")
-	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{Logger: logger.Default.LogMode(logger.Silent)})
 	if err != nil {
 		logging.WriteErrorLog(err.Error(), true)
 		panic("failed to connect database")

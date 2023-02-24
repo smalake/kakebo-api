@@ -21,11 +21,11 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// ユーザの新規登録
-	err2 := user.RegisterUser()
-	if err2 != nil {
-		logging.WriteErrorLog(err2.Error(), true)
+	err = user.RegisterUser()
+	if err != nil {
+		logging.WriteErrorLog(err.Error(), true)
 		w.WriteHeader(http.StatusBadRequest)
-		fmt.Fprintln(w, err2)
+		fmt.Fprintln(w, err)
 		return
 	}
 
