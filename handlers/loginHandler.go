@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/smalake/kakebo-api/model"
@@ -15,12 +16,14 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	err := json.NewDecoder(r.Body).Decode(&user)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprintln(w, err)
 		return
 	}
 	// パスワードを検証し、認証に成功すればJWTを生成する
 	pass, err := user.GetPassword()
 	if err != nil {
 		logging.WriteErrorLog(err.Error(), true)
+		fmt.Fprintln(w, err)
 		return
 	}
 	if user.Password == pass {
@@ -28,6 +31,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		tokenString, err := jwt.CreateJWT(user.Email)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
+			fmt.Fprintln(w, err)
 			return
 		}
 

@@ -1,6 +1,33 @@
 package model
 
-import "github.com/smalake/kakebo-api/utils/logging"
+import (
+	"errors"
+
+	"github.com/smalake/kakebo-api/utils/logging"
+)
+
+// ユーザを新規登録する
+func (u *User) RegisterUser() error {
+	db := ConnectDB()
+	sqlDb, err := db.DB() //コネクションクローズ用
+	if err != nil {
+		return err
+	}
+	defer sqlDb.Close()
+
+	// メールアドレスが使われていないかチェック
+	db.Where("email = ?", u.Email).First(&u)
+	if u.ID != 0 {
+		err := errors.New("すでに使用されているメールアドレスです。")
+		return err
+	}
+
+	err = db.Table("users").Create(u).Error
+	if err != nil {
+		return err
+	}
+	return nil
+}
 
 // ログイン用にパスワードを取得する
 func (u *User) GetPassword() (string, error) {
@@ -38,22 +65,4 @@ func GetUserId(email string) (int, error) {
 	}
 
 	return id, nil
-}
-
-// ユーザを新規登録する
-func (u *User) RegisterUser() error {
-	db := ConnectDB()
-	sqlDb, err := db.DB() //コネクションクローズ用
-	if err != nil {
-		logging.WriteErrorLog(err.Error(), true)
-		return err
-	}
-	defer sqlDb.Close()
-
-	err = db.Table("users").Create(u).Error
-	if err != nil {
-		logging.WriteErrorLog(err.Error(), true)
-		return err
-	}
-	return nil
 }

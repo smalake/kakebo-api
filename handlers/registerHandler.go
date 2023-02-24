@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/smalake/kakebo-api/model"
@@ -16,6 +17,7 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 	err := json.NewDecoder(r.Body).Decode(&user)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprintln(w, err)
 		return
 	}
 	// ユーザの新規登録
@@ -23,6 +25,7 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 	if err2 != nil {
 		logging.WriteErrorLog(err2.Error(), true)
 		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprintln(w, err2)
 		return
 	}
 
@@ -31,6 +34,7 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		logging.WriteErrorLog(err.Error(), true)
 		w.WriteHeader(http.StatusInternalServerError)
+		fmt.Fprintln(w, err)
 		return
 	}
 
