@@ -13,9 +13,8 @@ func NewRouter() *http.ServeMux {
 	println("Server Start Port:8088")
 	logging.WriteErrorLog("Server Start Port:8088", false)
 	// ルーティング
-	// mux.HandleFunc("/user", handlers.UserHandler)
 	mux.HandleFunc("/login", handlers.LoginHandler)
+	// mux.HandleFunc("/register", middleware.AuthCheck(handlers.RegisterHandler))
 	mux.HandleFunc("/register", handlers.RegisterHandler)
-	// mux.HandleFunc("/user-data", middleware.AuthCheck(handlers.UserDataHandler))
 	return mux
 }

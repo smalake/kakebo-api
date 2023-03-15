@@ -36,6 +36,7 @@ func AuthCheck(next http.HandlerFunc) http.HandlerFunc {
 		token, err := auth.VerifyIDToken(context.Background(), idToken)
 		if err != nil {
 			// JWT が無効なら Handler に進まず別処理
+			logging.WriteErrorLog(err.Error(), true)
 			fmt.Printf("error verifying ID token: %v\n", err)
 			w.WriteHeader(http.StatusUnauthorized)
 			w.Write([]byte("error verifying ID token\n"))
