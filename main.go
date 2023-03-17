@@ -5,6 +5,7 @@ import (
 
 	"github.com/joho/godotenv"
 	"github.com/smalake/kakebo-api/server"
+	"github.com/smalake/kakebo-api/utils/firebase"
 	"github.com/smalake/kakebo-api/utils/logging"
 )
 
@@ -14,6 +15,9 @@ func main() {
 	if err != nil {
 		logging.WriteErrorLog(err.Error(), true)
 	}
+	// Firebase SDKの初期化処理
+	firebase.InitFirebase()
+
 	// ルーティングを呼び出す
 	router := server.NewRouter()
 	// HTTPサーバーを起動する

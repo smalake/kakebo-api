@@ -11,7 +11,6 @@ import (
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	// リクエストボディからUIDを取得
 	var user model.User
-	fmt.Println(user)
 	err := json.NewDecoder(r.Body).Decode(&user)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
