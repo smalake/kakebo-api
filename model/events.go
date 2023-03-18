@@ -41,14 +41,30 @@ func (e *Events) GetEvents(uid string) ([]byte, error) {
 	}
 	defer sqlDb.Close()
 
-	var events []Events
+	var events []Event
 	err = db.Where("uid = ?", uid).Find(&events).Error
 	if err != nil {
 		logging.WriteErrorLog(err.Error(), true)
 		return nil, err
 	}
+	// 送信用に変換
+	eventMap := make(map[time.Time][]map[string]interface{})
+	for _, event := range events {
+		date := event.Date.UTC() // 日付をUTCに変換
+		// マップ内の日付キーが存在しない場合は初期化する
+		if _, ok := eventMap[date]; !ok {
+			eventMap[date] = make([]map[string]interface{}, 0)
+		}
+		// イベントデータをマップに変換して追加
+		eventMap[date] = append(eventMap[date], map[string]interface{}{
+			"spending": event.Amount,
+			"category": event.Category,
+			"store":    event.StoreName,
+		})
+	}
+
 	// JSONへと変換
-	jsonEvents, err := json.Marshal(events)
+	jsonEvents, err := json.Marshal(eventMap)
 	if err != nil {
 		logging.WriteErrorLog(err.Error(), true)
 		return nil, err
@@ -66,21 +82,13 @@ func (e *Events) CreateEvent(uid string) error {
 	}
 	defer sqlDb.Close()
 
-	// DB登録用に切り出して登録
-	main := &Event{
-		UID:       e.UID,
-		Category:  e.Category1,
-		Amount:    e.Amount1,
-		Date:      e.Date,
-		StoreName: e.StoreName,
-	}
-	err = db.Table("events").Create(main).Error
-	if err != nil {
-		return err
-	}
+	// 支出金額の合計
+	amount := e.Amount1
 
 	// 2つ目の支出が存在する場合、別途登録する
 	if e.Amount2 != 0 {
+		// 2つ目の金額分合計金額から引く
+		amount = e.Amount1 - e.Amount2
 		sub := &Event{
 			UID:       e.UID,
 			Category:  e.Category2,
@@ -92,6 +100,19 @@ func (e *Events) CreateEvent(uid string) error {
 		if err != nil {
 			return err
 		}
+	}
+
+	// DB登録用に切り出して登録
+	main := &Event{
+		UID:       e.UID,
+		Category:  e.Category1,
+		Amount:    amount,
+		Date:      e.Date,
+		StoreName: e.StoreName,
+	}
+	err = db.Table("events").Create(main).Error
+	if err != nil {
+		return err
 	}
 
 	return nil

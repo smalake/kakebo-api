@@ -23,10 +23,9 @@ func EventHandler(w http.ResponseWriter, r *http.Request) {
 			fmt.Fprintln(w, err)
 			return
 		}
-		fmt.Println(string(eventList))
 		// 取得したイベントをフロント側へと渡す
 		w.Header().Set("Content-Type", "application/json")
-		fmt.Fprint(w, eventList)
+		fmt.Fprint(w, string(eventList))
 		return
 
 	case http.MethodPost: // POSTリクエストの処理
