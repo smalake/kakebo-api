@@ -17,14 +17,16 @@ func EventHandler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet: // GETリクエストの処理
 		// 一覧を取得
-		err := events.GetEvents(uid)
+		eventList, err := events.GetEvents(uid)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
 			fmt.Fprintln(w, err)
 			return
 		}
+		fmt.Println(string(eventList))
 		// 取得したイベントをフロント側へと渡す
-		fmt.Fprint(w, events)
+		w.Header().Set("Content-Type", "application/json")
+		fmt.Fprint(w, eventList)
 		return
 
 	case http.MethodPost: // POSTリクエストの処理
