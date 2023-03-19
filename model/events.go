@@ -3,7 +3,6 @@ package model
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"time"
 
 	"github.com/smalake/kakebo-api/utils/logging"
@@ -128,7 +127,6 @@ func (e *Event) UpdateEvent() error {
 		return errors.New("DBとの接続に失敗しました。")
 	}
 	defer sqlDb.Close()
-	fmt.Println(e.Date)
 
 	err = db.Model(&e).Updates(Event{
 		Category:  e.Category,
@@ -140,5 +138,23 @@ func (e *Event) UpdateEvent() error {
 		logging.WriteErrorLog(err.Error(), true)
 		return err
 	}
+	return nil
+}
+
+// イベントを削除
+func (e *Event) DeleteEvent() error {
+	db := ConnectDB()
+	sqlDb, err := db.DB() //コネクションクローズ用
+	if err != nil {
+		return errors.New("DBとの接続に失敗しました。")
+	}
+	defer sqlDb.Close()
+
+	err = db.Delete(&e).Error
+	if err != nil {
+		logging.WriteErrorLog(err.Error(), true)
+		return err
+	}
+
 	return nil
 }

@@ -67,6 +67,22 @@ func EventHandler(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		return
 	case http.MethodDelete: // DELETEリクエストの処理
+		// リクエストボディから削除内容を取得
+		err := json.NewDecoder(r.Body).Decode(&event)
+		if err != nil {
+			fmt.Println(err)
+			w.WriteHeader(http.StatusBadRequest)
+			fmt.Fprintln(w, err)
+			return
+		}
+		err = event.DeleteEvent()
+		if err != nil {
+			fmt.Println(err)
+			w.WriteHeader(http.StatusBadRequest)
+			fmt.Fprintln(w, err)
+			return
+		}
+		w.WriteHeader(http.StatusOK)
 		return
 	}
 }
