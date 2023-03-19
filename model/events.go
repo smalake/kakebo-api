@@ -3,6 +3,7 @@ package model
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/smalake/kakebo-api/utils/logging"
@@ -33,7 +34,7 @@ type Events struct {
 }
 
 // 該当ユーザのイベントを全て取得する
-func (e *Events) GetEvents(uid string) ([]byte, error) {
+func (e *Event) GetEvents(uid string) ([]byte, error) {
 	db := ConnectDB()
 	sqlDb, err := db.DB() //コネクションクローズ用
 	if err != nil {
@@ -57,6 +58,7 @@ func (e *Events) GetEvents(uid string) ([]byte, error) {
 		}
 		// イベントデータをマップに変換して追加
 		eventMap[date] = append(eventMap[date], map[string]interface{}{
+			"id":       event.ID,
 			"spending": event.Amount,
 			"category": event.Category,
 			"store":    event.StoreName,
@@ -115,5 +117,28 @@ func (e *Events) CreateEvent(uid string) error {
 		return err
 	}
 
+	return nil
+}
+
+// イベントを編集
+func (e *Event) UpdateEvent() error {
+	db := ConnectDB()
+	sqlDb, err := db.DB() //コネクションクローズ用
+	if err != nil {
+		return errors.New("DBとの接続に失敗しました。")
+	}
+	defer sqlDb.Close()
+	fmt.Println(e.Date)
+
+	err = db.Model(&e).Updates(Event{
+		Category:  e.Category,
+		Amount:    e.Amount,
+		Date:      e.Date,
+		StoreName: e.StoreName,
+	}).Error
+	if err != nil {
+		logging.WriteErrorLog(err.Error(), true)
+		return err
+	}
 	return nil
 }

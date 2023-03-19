@@ -10,6 +10,7 @@ import (
 
 func EventHandler(w http.ResponseWriter, r *http.Request) {
 	var events model.Events
+	var event model.Event
 	// コンテキストからUIDを取得
 	uid := r.Context().Value("uid").(string)
 
@@ -17,7 +18,7 @@ func EventHandler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet: // GETリクエストの処理
 		// 一覧を取得
-		eventList, err := events.GetEvents(uid)
+		eventList, err := event.GetEvents(uid)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
 			fmt.Fprintln(w, err)
@@ -48,6 +49,22 @@ func EventHandler(w http.ResponseWriter, r *http.Request) {
 		return
 
 	case http.MethodPut: // PUTリクエストの処理
+		// リクエストボディから更新内容を取得
+		err := json.NewDecoder(r.Body).Decode(&event)
+		if err != nil {
+			fmt.Println(err)
+			w.WriteHeader(http.StatusBadRequest)
+			fmt.Fprintln(w, err)
+			return
+		}
+		err = event.UpdateEvent()
+		if err != nil {
+			fmt.Println(err)
+			w.WriteHeader(http.StatusBadRequest)
+			fmt.Fprintln(w, err)
+			return
+		}
+		w.WriteHeader(http.StatusOK)
 		return
 	case http.MethodDelete: // DELETEリクエストの処理
 		return
