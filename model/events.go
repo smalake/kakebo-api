@@ -119,7 +119,7 @@ func (e *Events) CreateEvent(uid string) error {
 	return nil
 }
 
-// イベントを編集
+// イベントを更新
 func (e *Event) UpdateEvent() error {
 	db := ConnectDB()
 	sqlDb, err := db.DB() //コネクションクローズ用
