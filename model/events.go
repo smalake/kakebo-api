@@ -74,7 +74,7 @@ func (e *Event) GetEvents(uid string) ([]byte, error) {
 }
 
 // イベントを新規作成
-func (e *Events) CreateEvent(uid string) error {
+func (e *Events) InsertEvent(uid string) error {
 	e.UID = uid
 	db := ConnectDB()
 	sqlDb, err := db.DB() //コネクションクローズ用
@@ -142,7 +142,7 @@ func (e *Event) UpdateEvent() error {
 }
 
 // イベントを削除
-func (e *Event) DeleteEvent() error {
+func (e *Event) DeleteOneEvent() error {
 	db := ConnectDB()
 	sqlDb, err := db.DB() //コネクションクローズ用
 	if err != nil {

@@ -20,7 +20,7 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// ユーザの新規登録
-	err = user.RegisterUser()
+	err = user.CreateUser()
 	if err != nil {
 		logging.WriteErrorLog(err.Error(), true)
 		w.WriteHeader(http.StatusBadRequest)

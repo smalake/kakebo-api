@@ -15,7 +15,7 @@ type User struct {
 }
 
 // ユーザを新規登録する
-func (u *User) RegisterUser() error {
+func (u *User) CreateUser() error {
 	db := ConnectDB()
 	sqlDb, err := db.DB() //コネクションクローズ用
 	if err != nil {
