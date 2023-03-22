@@ -1,6 +1,7 @@
 package model
 
 import (
+	"encoding/json"
 	"errors"
 	"time"
 
@@ -8,31 +9,36 @@ import (
 )
 
 type DisplayName struct {
-	UID         string `json:"uid"`
-	DisplayName string `json:"name"`
-	UpdatedAt   time.Time
+	Name      string `json:"name"`
+	UpdatedAt time.Time
 }
 
 // UIDから表示名を取得する
-func (n *DisplayName) GetDisplayName() error {
+func (n *DisplayName) GetDisplayName(uid string) ([]byte, error) {
 	db := ConnectDB()
 	sqlDb, err := db.DB() //コネクションクローズ用
 	if err != nil {
-		return errors.New("DBとの接続に失敗しました。")
+		return nil, errors.New("DBとの接続に失敗しました。")
 	}
 	defer sqlDb.Close()
 
-	err = db.Table("users").Where("uid = ?", n.UID).First(&n).Error
+	err = db.Table("users").Select("name").Where("uid = ?", uid).First(&n).Error
 	if err != nil {
 		logging.WriteErrorLog(err.Error(), true)
-		return err
+		return nil, err
 	}
 
-	return nil
+	// JSON形式にしてからJSON変換
+	jsonName, err := json.Marshal(map[string]string{"name": n.Name})
+	if err != nil {
+		logging.WriteErrorLog(err.Error(), true)
+		return nil, err
+	}
+	return jsonName, nil
 }
 
 // 表示名を更新する
-func (n *DisplayName) UpdateDisplayName() error {
+func (n *DisplayName) UpdateDisplayName(uid string) error {
 	db := ConnectDB()
 	sqlDb, err := db.DB() //コネクションクローズ用
 	if err != nil {
@@ -40,7 +46,7 @@ func (n *DisplayName) UpdateDisplayName() error {
 	}
 	defer sqlDb.Close()
 
-	err = db.Table("users").Where("uid = ?", n.UID).Update("name", n.DisplayName).Error
+	err = db.Table("users").Where("uid = ?", uid).Update("name", n.Name).Error
 	if err != nil {
 		logging.WriteErrorLog(err.Error(), true)
 		return err
