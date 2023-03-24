@@ -50,7 +50,7 @@ func (e *Event) GetEvents(uid string) ([]byte, error) {
 	// 送信用に変換
 	eventMap := make(map[time.Time][]map[string]interface{})
 	for _, event := range events {
-		date := event.Date.UTC() // 日付をUTCに変換
+		date := event.Date
 		// マップ内の日付キーが存在しない場合は初期化する
 		if _, ok := eventMap[date]; !ok {
 			eventMap[date] = make([]map[string]interface{}, 0)
