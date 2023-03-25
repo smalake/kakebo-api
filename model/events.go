@@ -32,7 +32,7 @@ type Events struct {
 	StoreName string    `json:"store_name"`
 }
 
-// 該当ユーザのイベントを全て取得する
+// 該当ユーザの所属しているグループのイベントを全て取得する
 func (e *Event) GetEvents(uid string) ([]byte, error) {
 	db := ConnectDB()
 	sqlDb, err := db.DB() //コネクションクローズ用
@@ -42,7 +42,7 @@ func (e *Event) GetEvents(uid string) ([]byte, error) {
 	defer sqlDb.Close()
 
 	var events []Event
-	err = db.Where("uid = ?", uid).Find(&events).Error
+	err = db.Table("events").Joins("inner join users on users.group_id = events.group_id").Where("users.uid = ?", uid).Find(&events).Error
 	if err != nil {
 		logging.WriteErrorLog(err.Error(), true)
 		return nil, err
