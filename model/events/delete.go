@@ -20,7 +20,7 @@ func (e *DeleteEvent) DeleteOneEvent() error {
 	}
 	defer sqlDb.Close()
 
-	err = db.Delete(&e).Error
+	err = db.Table("events").Delete(&e).Error
 	if err != nil {
 		logging.WriteErrorLog(err.Error(), true)
 		return err
