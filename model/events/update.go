@@ -9,12 +9,13 @@ import (
 )
 
 type UpdateEvent struct {
+	ID         int       `json:"id"`
 	Category   int       `json:"category"`
 	Amount     int       `json:"amount"`
 	Date       time.Time `json:"date" time_format:"2006-01-02"`
 	StoreName  string    `json:"store_name" gorm:"column:store_name"`
 	UpdateUser string    `json:"update_user"`
-	CreatedAt  time.Time
+	UpdatedAt  time.Time
 }
 
 // イベントを更新
@@ -26,12 +27,13 @@ func (e *UpdateEvent) UpdateEvent() error {
 	}
 	defer sqlDb.Close()
 
-	err = db.Model(&e).Updates(UpdateEvent{
+	err = db.Table("events").Where("id = ?", e.ID).Updates(UpdateEvent{
 		Category:   e.Category,
 		Amount:     e.Amount,
 		Date:       e.Date,
 		StoreName:  e.StoreName,
 		UpdateUser: e.UpdateUser,
+		UpdatedAt:  time.Now(),
 	}).Error
 	if err != nil {
 		logging.WriteErrorLog(err.Error(), true)

@@ -59,6 +59,8 @@ func (e *GetEvent) GetEvents(uid string) ([]byte, error) {
 			"store":       event.StoreName,
 			"create_user": event.CreateUserName,
 			"update_user": event.UpdateUserName,
+			"create_date": event.CreatedAt,
+			"update_date": event.UpdatedAt,
 		})
 	}
 
