@@ -5,12 +5,12 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/smalake/kakebo-api/model"
+	"github.com/smalake/kakebo-api/model/users"
 )
 
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	// リクエストボディからUIDを取得
-	var user model.User
+	var user users.User
 	err := json.NewDecoder(r.Body).Decode(&user)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)

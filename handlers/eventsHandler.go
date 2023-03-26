@@ -5,12 +5,12 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/smalake/kakebo-api/model"
+	"github.com/smalake/kakebo-api/model/events"
 )
 
 // 対象ユーザのイベント一覧を取得
 func GetEvents(w http.ResponseWriter, r *http.Request) {
-	var event model.Event
+	var event events.GetEvent
 	// コンテキストからUIDを取得
 	uid := r.Context().Value("uid").(string)
 
@@ -28,19 +28,19 @@ func GetEvents(w http.ResponseWriter, r *http.Request) {
 
 // イベントを新規作成
 func CreateEvent(w http.ResponseWriter, r *http.Request) {
-	var events model.Events
+	var event events.CreateEvent
 	// コンテキストからUIDを取得
 	uid := r.Context().Value("uid").(string)
 
 	// リクエストボディから登録内容を取得
-	err := json.NewDecoder(r.Body).Decode(&events)
+	err := json.NewDecoder(r.Body).Decode(&event)
 	if err != nil {
 		fmt.Println(err)
 		w.WriteHeader(http.StatusBadRequest)
 		fmt.Fprintln(w, err)
 		return
 	}
-	err = events.InsertEvent(uid)
+	err = event.InsertEvent(uid)
 	if err != nil {
 		fmt.Println(err)
 		w.WriteHeader(http.StatusBadRequest)
@@ -52,7 +52,7 @@ func CreateEvent(w http.ResponseWriter, r *http.Request) {
 
 // イベントを更新
 func EditEvent(w http.ResponseWriter, r *http.Request) {
-	var event model.Event
+	var event events.UpdateEvent
 
 	// リクエストボディから更新内容を取得
 	err := json.NewDecoder(r.Body).Decode(&event)
@@ -73,7 +73,7 @@ func EditEvent(w http.ResponseWriter, r *http.Request) {
 }
 
 func DeleteEvent(w http.ResponseWriter, r *http.Request) {
-	var event model.Event
+	var event events.DeleteEvent
 
 	// リクエストボディから削除内容を取得
 	err := json.NewDecoder(r.Body).Decode(&event)

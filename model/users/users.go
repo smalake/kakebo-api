@@ -1,8 +1,10 @@
-package model
+package users
 
 import (
 	"errors"
 	"time"
+
+	"github.com/smalake/kakebo-api/model"
 )
 
 type User struct {
@@ -10,13 +12,14 @@ type User struct {
 	UID       string `json:"uid"`
 	Name      string `json:"name"`
 	Type      string `json:"type"`
+	GroupID   int    `json:"group_id"`
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }
 
 // ユーザを新規登録する
 func (u *User) CreateUser() error {
-	db := ConnectDB()
+	db := model.ConnectDB()
 	sqlDb, err := db.DB() //コネクションクローズ用
 	if err != nil {
 		return errors.New("DBとの接続に失敗しました。")
@@ -40,7 +43,7 @@ func (u *User) CreateUser() error {
 
 // ログイン
 func (u *User) LoginUser() error {
-	db := ConnectDB()
+	db := model.ConnectDB()
 	sqlDb, err := db.DB() //コネクションクローズ用
 	if err != nil {
 		return errors.New("DBとの接続に失敗しました。")

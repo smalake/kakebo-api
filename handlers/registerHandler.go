@@ -5,14 +5,14 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/smalake/kakebo-api/model"
+	"github.com/smalake/kakebo-api/model/users"
 	"github.com/smalake/kakebo-api/utils/logging"
 )
 
 // ユーザの新規登録
 func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 	// リクエストボディからUIDを取得
-	var user model.User
+	var user users.User
 	err := json.NewDecoder(r.Body).Decode(&user)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
