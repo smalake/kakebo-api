@@ -38,7 +38,7 @@ func (e *GetEvent) GetEvents(uid string) ([]byte, error) {
 		Joins("INNER JOIN users AS create_user ON events.create_user = create_user.uid").
 		Joins("LEFT JOIN users AS update_user ON events.update_user = update_user.uid").
 		Select("events.*, create_user.name AS create_user_name, update_user.name AS update_user_name").
-		Where("create_user.uid = ?", uid).Find(&events).Error
+		Where("create_user.group_id = events.group_id AND create_user.uid = ?", uid).Find(&events).Error
 	if err != nil {
 		logging.WriteErrorLog(err.Error(), true)
 		return nil, err
