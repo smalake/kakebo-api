@@ -11,7 +11,7 @@ type User struct {
 	ID        int    `json:"id"`
 	UID       string `json:"uid"`
 	Name      string `json:"name"`
-	Type      string `json:"type"`
+	Type      int    `json:"type"`
 	GroupID   int    `json:"group_id"`
 	CreatedAt time.Time
 	UpdatedAt time.Time

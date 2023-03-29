@@ -5,16 +5,12 @@ import (
 	"errors"
 
 	"github.com/smalake/kakebo-api/model"
+	"github.com/smalake/kakebo-api/model/users"
 	"github.com/smalake/kakebo-api/utils/logging"
+	"gorm.io/gorm"
 )
 
-type Group struct {
-	ID      int    `json:"id"`
-	UID     string `json:"uid"`
-	GroupID int    `json:"group_id" gorm:"default:0"`
-}
-
-func (g *Group) GetGroupID(uid string) ([]byte, error) {
+func GetGroupID(uid string) ([]byte, error) {
 	db := model.ConnectDB()
 	sqlDb, err := db.DB() //コネクションクローズ用
 	if err != nil {
@@ -23,13 +19,26 @@ func (g *Group) GetGroupID(uid string) ([]byte, error) {
 	}
 	defer sqlDb.Close()
 
-	err = db.Table("users").Where("uid = ?", uid).First(&g).Error
+	var user users.User
+
+	err = db.Where("uid = ?", uid).First(&user).Error
 	if err != nil {
-		logging.WriteErrorLog(err.Error(), true)
-		return nil, err
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			// レコードが存在しない場合はグループIDを-1にする
+			var resData = map[string]int{"groupId": -1}
+			jsonData, err := json.Marshal(resData)
+			if err != nil {
+				logging.WriteErrorLog(err.Error(), true)
+				return nil, err
+			}
+			return jsonData, nil
+		} else {
+			logging.WriteErrorLog(err.Error(), true)
+			return nil, err
+		}
 	}
 
-	var resData = map[string]int{"groupId": g.GroupID}
+	var resData = map[string]int{"groupId": user.GroupID}
 	jsonData, err := json.Marshal(resData)
 	if err != nil {
 		logging.WriteErrorLog(err.Error(), true)

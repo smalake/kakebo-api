@@ -13,8 +13,6 @@ func CheckSetup(w http.ResponseWriter, r *http.Request) {
 	// コンテキストからUIDを取得
 	uid := r.Context().Value("uid").(string)
 
-	var setup setup.Group
-
 	groupData, err := setup.GetGroupID(uid)
 	if err != nil {
 		logging.WriteErrorLog(err.Error(), true)
@@ -26,4 +24,22 @@ func CheckSetup(w http.ResponseWriter, r *http.Request) {
 	// 取得したイベントをフロント側へと渡す
 	w.Header().Set("Content-Type", "application/json")
 	fmt.Fprint(w, string(groupData))
+}
+
+// グループを新規作成
+func CreateGroup(w http.ResponseWriter, r *http.Request) {
+	// コンテキストからUIDを取得
+	uid := r.Context().Value("uid").(string)
+
+	var setupGroup setup.Group
+
+	err := setupGroup.CreateGroup(uid)
+	if err != nil {
+		logging.WriteErrorLog(err.Error(), true)
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprintln(w, err)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+
 }

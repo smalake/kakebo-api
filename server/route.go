@@ -26,5 +26,6 @@ func Routing(r *mux.Router) {
 
 	// セットアップ
 	r.HandleFunc("/setup", middleware.AuthCheck(handlers.CheckSetup)).Methods(http.MethodGet)
+	r.HandleFunc("/setup", middleware.AuthCheck(handlers.CreateGroup)).Methods(http.MethodPost)
 
 }
