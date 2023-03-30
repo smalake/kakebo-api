@@ -2,7 +2,6 @@ package setup
 
 import (
 	"errors"
-	"fmt"
 	"time"
 
 	"github.com/smalake/kakebo-api/model"
@@ -11,7 +10,6 @@ import (
 )
 
 func (g *Group) CreateGroup(uid string) error {
-	fmt.Println("CreateGroup実行")
 	db := model.ConnectDB()
 	tx := db.Begin()      // トランザクション開始
 	sqlDb, err := db.DB() //コネクションクローズ用
@@ -24,7 +22,7 @@ func (g *Group) CreateGroup(uid string) error {
 	g.UID = uid
 
 	// グループの新規作成
-	err = tx.Debug().Create(&g).Error
+	err = tx.Create(&g).Error
 	if err != nil {
 		tx.Rollback()
 		logging.WriteErrorLog(err.Error(), true)
