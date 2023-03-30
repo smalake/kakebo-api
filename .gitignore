@@ -15,3 +15,5 @@
 *.idea
 *.envrc
 log/
+.env
+key/
