@@ -3,19 +3,29 @@ package server
 import (
 	"net/http"
 
+	"github.com/gorilla/mux"
 	"github.com/smalake/kakebo-api/handlers"
-	"github.com/smalake/kakebo-api/utils/logging"
+	"github.com/smalake/kakebo-api/middleware"
 )
 
-func NewRouter() *http.ServeMux {
-	// Webサーバの起動
-	mux := http.NewServeMux()
-	println("Server Start Port:8088")
-	logging.WriteErrorLog("Server Start Port:8088", false)
-	// ルーティング
-	// mux.HandleFunc("/user", handlers.UserHandler)
-	mux.HandleFunc("/login", handlers.LoginHandler)
-	mux.HandleFunc("/register", handlers.RegisterHandler)
-	// mux.HandleFunc("/user-data", middleware.AuthCheck(handlers.UserDataHandler))
-	return mux
+// ルーティング
+func Routing(r *mux.Router) {
+	// 認証
+	r.HandleFunc("/login", handlers.LoginHandler).Methods(http.MethodPost)
+	r.HandleFunc("/register", handlers.RegisterHandler).Methods(http.MethodPost)
+
+	// イベント
+	r.HandleFunc("/events", middleware.AuthCheck(handlers.GetEvents)).Methods(http.MethodGet)
+	r.HandleFunc("/events", middleware.AuthCheck(handlers.CreateEvent)).Methods(http.MethodPost)
+	r.HandleFunc("/events", middleware.AuthCheck(handlers.EditEvent)).Methods(http.MethodPut)
+	r.HandleFunc("/events", middleware.AuthCheck(handlers.DeleteEvent)).Methods(http.MethodDelete)
+
+	// 表示名
+	r.HandleFunc("/display-name", middleware.AuthCheck(handlers.GetName)).Methods(http.MethodGet)
+	r.HandleFunc("/display-name", middleware.AuthCheck(handlers.EditName)).Methods(http.MethodPut)
+
+	// セットアップ
+	r.HandleFunc("/setup", middleware.AuthCheck(handlers.CheckSetup)).Methods(http.MethodGet)
+	r.HandleFunc("/setup", middleware.AuthCheck(handlers.CreateGroup)).Methods(http.MethodPost)
+
 }

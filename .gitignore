@@ -16,3 +16,4 @@
 *.envrc
 log/
 .env
+key/

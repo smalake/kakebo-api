@@ -1,10 +1,13 @@
 package main
 
 import (
+	"log"
 	"net/http"
 
+	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
 	"github.com/smalake/kakebo-api/server"
+	"github.com/smalake/kakebo-api/utils/firebase"
 	"github.com/smalake/kakebo-api/utils/logging"
 )
 
@@ -14,10 +17,17 @@ func main() {
 	if err != nil {
 		logging.WriteErrorLog(err.Error(), true)
 	}
+	// Firebase SDKの初期化処理
+	firebase.InitFirebase()
+
+	r := mux.NewRouter()
 	// ルーティングを呼び出す
-	router := server.NewRouter()
+	server.Routing(r)
+
 	// HTTPサーバーを起動する
-	if err := http.ListenAndServe(":8088", router); err != nil {
+	log.Println("Starting server on :8088...")
+	if err := http.ListenAndServe(":8088", r); err != nil {
 		logging.WriteErrorLog(err.Error(), true)
+		log.Fatal(err)
 	}
 }
