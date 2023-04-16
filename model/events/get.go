@@ -15,9 +15,9 @@ type GetEvent struct {
 	Category       int       `json:"category"`
 	Amount         int       `json:"amount"`
 	Date           time.Time `json:"date" time_format:"2006-01-02"`
-	StoreName      string    `json:"store_name" gorm:"column:store_name"`
-	CreateUser     string    `json:"create_user"`
-	UpdateUser     string    `json:"update_user"`
+	StoreName      string    `json:"storeName" gorm:"column:store_name"`
+	CreateUser     string    `json:"createUser"`
+	UpdateUser     string    `json:"updateUser"`
 	CreateUserName string
 	UpdateUserName string
 	CreatedAt      time.Time
@@ -44,23 +44,23 @@ func (e *GetEvent) GetEvents(uid string) ([]byte, error) {
 		return nil, err
 	}
 	// 送信用に変換
-	eventMap := make(map[time.Time][]map[string]interface{})
+	eventMap := make(map[string][]map[string]interface{})
 	for _, event := range events {
-		date := event.Date
+		date := event.Date.Format("2006-01-02")
 		// マップ内の日付キーが存在しない場合は初期化する
 		if _, ok := eventMap[date]; !ok {
 			eventMap[date] = make([]map[string]interface{}, 0)
 		}
 		// イベントデータをマップに変換して追加
 		eventMap[date] = append(eventMap[date], map[string]interface{}{
-			"id":          event.ID,
-			"spending":    event.Amount,
-			"category":    event.Category,
-			"store":       event.StoreName,
-			"create_user": event.CreateUserName,
-			"update_user": event.UpdateUserName,
-			"create_date": event.CreatedAt,
-			"update_date": event.UpdatedAt,
+			"id":         event.ID,
+			"amount":     event.Amount,
+			"category":   event.Category,
+			"storeName":  event.StoreName,
+			"createUser": event.CreateUserName,
+			"updateUser": event.UpdateUserName,
+			"createDate": event.CreatedAt,
+			"updateDate": event.UpdatedAt,
 		})
 	}
 
