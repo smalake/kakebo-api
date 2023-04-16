@@ -5,14 +5,16 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/smalake/kakebo-api/middleware"
 	"github.com/smalake/kakebo-api/model/events"
+	"github.com/smalake/kakebo-api/utils/logging"
 )
 
 // 対象ユーザのイベント一覧を取得
 func GetEvents(w http.ResponseWriter, r *http.Request) {
 	var event events.GetEvent
 	// コンテキストからUIDを取得
-	uid := r.Context().Value("uid").(string)
+	uid := r.Context().Value(middleware.MyKey("uid")).(string)
 
 	// 一覧を取得
 	eventList, err := event.GetEvents(uid)
@@ -30,24 +32,25 @@ func GetEvents(w http.ResponseWriter, r *http.Request) {
 func CreateEvent(w http.ResponseWriter, r *http.Request) {
 	var event events.CreateEvent
 	// コンテキストからUIDを取得
-	uid := r.Context().Value("uid").(string)
+	uid := r.Context().Value(middleware.MyKey("uid")).(string)
 
 	// リクエストボディから登録内容を取得
 	err := json.NewDecoder(r.Body).Decode(&event)
 	if err != nil {
-		fmt.Println(err)
+		logging.WriteErrorLog(err.Error(), true)
 		w.WriteHeader(http.StatusBadRequest)
-		fmt.Fprintln(w, err)
+		fmt.Fprintln(w, "データの取得に失敗しました")
 		return
 	}
 	err = event.InsertEvent(uid)
 	if err != nil {
-		fmt.Println(err)
-		w.WriteHeader(http.StatusBadRequest)
-		fmt.Fprintln(w, err)
+		logging.WriteErrorLog(err.Error(), true)
+		w.WriteHeader(http.StatusInternalServerError)
+		fmt.Fprintln(w, "データの登録に失敗しました")
 		return
 	}
 	w.WriteHeader(http.StatusOK)
+	fmt.Fprintln(w, "登録しました")
 }
 
 // イベントを更新

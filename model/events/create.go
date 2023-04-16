@@ -14,8 +14,8 @@ type InsertEvent struct {
 	Category   int       `json:"category"`
 	Amount     int       `json:"amount"`
 	Date       time.Time `json:"date" time_format:"2006-01-02"`
-	StoreName  string    `json:"store_name" gorm:"column:store_name"`
-	CreateUser string    `json:"create_user"`
+	StoreName  string    `json:"storeName" gorm:"column:store_name"`
+	CreateUser string    `json:"createUser"`
 	GroupID    int
 	CreatedAt  time.Time
 }
@@ -29,8 +29,8 @@ type CreateEvent struct {
 	Amount1    int       `json:"amount1"`
 	Amount2    int       `json:"amount2"`
 	Date       time.Time `json:"date" time_format:"2006-01-02"`
-	StoreName  string    `json:"store_name"`
-	CreateUser string    `json:"create_user"`
+	StoreName  string    `json:"storeName"`
+	CreateUser string    `json:"createUser"`
 	GroupID    int
 }
 
@@ -56,6 +56,7 @@ func (e *CreateEvent) InsertEvent(uid string) error {
 	defer sqlDb.Close()
 
 	// グループIDの取得
+	e.CreateUser = uid
 	err = e.getGroupID(db)
 	if err != nil {
 		return err
