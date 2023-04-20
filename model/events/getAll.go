@@ -10,22 +10,16 @@ import (
 )
 
 // DBからデータを取得するための構造体
-type GetEvent struct {
-	ID             int       `json:"id"`
-	Category       int       `json:"category"`
-	Amount         int       `json:"amount"`
-	Date           time.Time `json:"date" time_format:"2006-01-02"`
-	StoreName      string    `json:"storeName" gorm:"column:store_name"`
-	CreateUser     string    `json:"createUser"`
-	UpdateUser     string    `json:"updateUser"`
-	CreateUserName string
-	UpdateUserName string
-	CreatedAt      time.Time
-	UpdatedAt      time.Time
+type GetEventAll struct {
+	ID        int       `json:"id"`
+	Category  int       `json:"category"`
+	Amount    int       `json:"amount"`
+	Date      time.Time `json:"date" time_format:"2006-01-02"`
+	StoreName string    `json:"storeName" gorm:"column:store_name"`
 }
 
 // 該当ユーザの所属しているグループのイベントを全て取得する
-func (e *GetEvent) GetEvents(uid string) ([]byte, error) {
+func (e *GetEventAll) GetEvents(uid string) ([]byte, error) {
 	db := model.ConnectDB()
 	sqlDb, err := db.DB() //コネクションクローズ用
 	if err != nil {
@@ -33,12 +27,11 @@ func (e *GetEvent) GetEvents(uid string) ([]byte, error) {
 	}
 	defer sqlDb.Close()
 
-	var events []GetEvent
+	var events []GetEventAll
 	err = db.Table("events").
-		Joins("INNER JOIN users AS create_user ON events.create_user = create_user.uid").
-		Joins("LEFT JOIN users AS update_user ON events.update_user = update_user.uid").
-		Select("events.*, create_user.name AS create_user_name, update_user.name AS update_user_name").
-		Where("create_user.group_id = events.group_id AND create_user.uid = ?", uid).Find(&events).Error
+		Joins("INNER JOIN users ON users.group_id = events.group_id").
+		Select("events.id, events.category, events.amount, events.date, events.store_name").
+		Where("users.uid = ?", uid).Find(&events).Error
 	if err != nil {
 		logging.WriteErrorLog(err.Error(), true)
 		return nil, err
@@ -53,14 +46,10 @@ func (e *GetEvent) GetEvents(uid string) ([]byte, error) {
 		}
 		// イベントデータをマップに変換して追加
 		eventMap[date] = append(eventMap[date], map[string]interface{}{
-			"id":         event.ID,
-			"amount":     event.Amount,
-			"category":   event.Category,
-			"storeName":  event.StoreName,
-			"createUser": event.CreateUserName,
-			"updateUser": event.UpdateUserName,
-			"createDate": event.CreatedAt,
-			"updateDate": event.UpdatedAt,
+			"id":        event.ID,
+			"amount":    event.Amount,
+			"category":  event.Category,
+			"storeName": event.StoreName,
 		})
 	}
 

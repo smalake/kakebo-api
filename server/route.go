@@ -16,6 +16,7 @@ func Routing(r *mux.Router) {
 
 	// イベント
 	r.HandleFunc("/events", middleware.AuthCheck(handlers.GetEvents)).Methods(http.MethodGet)
+	r.HandleFunc("/events/{id}", middleware.AuthCheck(handlers.GetEvents)).Methods(http.MethodGet)
 	r.HandleFunc("/events", middleware.AuthCheck(handlers.CreateEvent)).Methods(http.MethodPost)
 	r.HandleFunc("/events", middleware.AuthCheck(handlers.EditEvent)).Methods(http.MethodPut)
 	r.HandleFunc("/events", middleware.AuthCheck(handlers.DeleteEvent)).Methods(http.MethodDelete)
