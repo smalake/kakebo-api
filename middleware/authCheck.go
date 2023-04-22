@@ -27,6 +27,7 @@ func AuthCheck(next http.HandlerFunc) http.HandlerFunc {
 			fmt.Fprint(w, "トークンが取得できません")
 			return
 		}
+
 		idToken := cookie.Value
 
 		// JWT の検証
@@ -35,7 +36,7 @@ func AuthCheck(next http.HandlerFunc) http.HandlerFunc {
 			// JWT が無効なら Handler に進まず別処理
 			logging.WriteErrorLog(err.Error(), true)
 			w.WriteHeader(http.StatusUnauthorized)
-			fmt.Fprint(w, "トークンが正しくありません")
+			fmt.Fprint(w, err)
 			return
 		}
 

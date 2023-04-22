@@ -16,8 +16,8 @@ type GetEventOne struct {
 	Amount         int       `json:"amount"`
 	Date           time.Time `json:"date" time_format:"2006-01-02"`
 	StoreName      string    `json:"storeName" gorm:"column:store_name"`
-	CreateUser     string    `json:"createUser"`
-	UpdateUser     string    `json:"updateUser"`
+	CreateUser     string
+	UpdateUser     string
 	CreateUserName string
 	UpdateUserName string
 	CreatedAt      time.Time
@@ -43,8 +43,25 @@ func (e *GetEventOne) GetEvent(uid string, id int) ([]byte, error) {
 		return nil, err
 	}
 
+	// 送信用に変換
+
+	if e.UpdateUserName == "" {
+		// 更新ユーザ名が設定されてない場合、作成ユーザ名を適用する
+		e.UpdateUserName = e.CreateUserName
+	}
+	eventMap := make(map[string]interface{})
+	eventMap["id"] = e.ID
+	eventMap["category"] = e.Category
+	eventMap["amount"] = e.Amount
+	eventMap["storeName"] = e.StoreName
+	eventMap["date"] = e.Date.Format("2006-01-02")
+	eventMap["createUser"] = e.CreateUserName
+	eventMap["updateUser"] = e.UpdateUserName
+	eventMap["createdAt"] = e.CreatedAt.Format("2006-01-02 15:04:05")
+	eventMap["updatedAt"] = e.UpdatedAt.Format("2006-01-02 15:04:05")
+
 	// JSONへと変換
-	jsonEvents, err := json.Marshal(e)
+	jsonEvents, err := json.Marshal(eventMap)
 	if err != nil {
 		logging.WriteErrorLog(err.Error(), true)
 		return nil, err

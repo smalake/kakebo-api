@@ -98,6 +98,9 @@ func CreateEvent(w http.ResponseWriter, r *http.Request) {
 
 // イベントを更新
 func EditEvent(w http.ResponseWriter, r *http.Request) {
+	// コンテキストからUIDを取得
+	uid := r.Context().Value(middleware.MyKey("uid")).(string)
+
 	var event events.UpdateEvent
 
 	// リクエストボディから更新内容を取得
@@ -108,7 +111,7 @@ func EditEvent(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, err)
 		return
 	}
-	err = event.UpdateEvent()
+	err = event.UpdateEvent(uid)
 	if err != nil {
 		fmt.Println(err)
 		w.WriteHeader(http.StatusBadRequest)
