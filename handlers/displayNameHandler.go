@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/smalake/kakebo-api/middleware"
 	"github.com/smalake/kakebo-api/model"
 	"github.com/smalake/kakebo-api/utils/logging"
 )
@@ -13,7 +14,7 @@ import (
 func GetName(w http.ResponseWriter, r *http.Request) {
 	var displayName model.DisplayName
 	// コンテキストからUIDを取得
-	uid := r.Context().Value("uid").(string)
+	uid := r.Context().Value(middleware.MyKey("uid")).(string)
 
 	name, err := displayName.GetDisplayName(uid)
 	if err != nil {
@@ -31,7 +32,7 @@ func GetName(w http.ResponseWriter, r *http.Request) {
 func EditName(w http.ResponseWriter, r *http.Request) {
 	var displayName model.DisplayName
 	// コンテキストからUIDを取得
-	uid := r.Context().Value("uid").(string)
+	uid := r.Context().Value(middleware.MyKey("uid")).(string)
 
 	// リクエストボディから更新内容を取得
 	err := json.NewDecoder(r.Body).Decode(&displayName)

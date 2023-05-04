@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/smalake/kakebo-api/middleware"
 	"github.com/smalake/kakebo-api/model/setup"
 	"github.com/smalake/kakebo-api/utils/logging"
 )
@@ -11,7 +12,7 @@ import (
 // セットアップしてあるユーザかチェックするためグループIDを取得
 func CheckSetup(w http.ResponseWriter, r *http.Request) {
 	// コンテキストからUIDを取得
-	uid := r.Context().Value("uid").(string)
+	uid := r.Context().Value(middleware.MyKey("uid")).(string)
 
 	groupData, err := setup.GetGroupID(uid)
 	if err != nil {
@@ -29,7 +30,7 @@ func CheckSetup(w http.ResponseWriter, r *http.Request) {
 // グループを新規作成
 func CreateGroup(w http.ResponseWriter, r *http.Request) {
 	// コンテキストからUIDを取得
-	uid := r.Context().Value("uid").(string)
+	uid := r.Context().Value(middleware.MyKey("uid")).(string)
 
 	var setupGroup setup.Group
 
