@@ -13,13 +13,13 @@ type UpdateEvent struct {
 	Category   int       `json:"category"`
 	Amount     int       `json:"amount"`
 	Date       time.Time `json:"date" time_format:"2006-01-02"`
-	StoreName  string    `json:"store_name" gorm:"column:store_name"`
-	UpdateUser string    `json:"update_user"`
+	StoreName  string    `json:"storeName" gorm:"column:store_name"`
+	UpdateUser string
 	UpdatedAt  time.Time
 }
 
 // イベントを更新
-func (e *UpdateEvent) UpdateEvent() error {
+func (e *UpdateEvent) UpdateEvent(uid string) error {
 	db := model.ConnectDB()
 	sqlDb, err := db.DB() //コネクションクローズ用
 	if err != nil {
@@ -32,7 +32,7 @@ func (e *UpdateEvent) UpdateEvent() error {
 		Amount:     e.Amount,
 		Date:       e.Date,
 		StoreName:  e.StoreName,
-		UpdateUser: e.UpdateUser,
+		UpdateUser: uid,
 		UpdatedAt:  time.Now(),
 	}).Error
 	if err != nil {

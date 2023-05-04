@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 
 	"github.com/smalake/kakebo-api/utils/firebase"
@@ -23,8 +24,10 @@ func AuthCheck(next http.HandlerFunc) http.HandlerFunc {
 		if err != nil {
 			logging.WriteErrorLog(err.Error(), true)
 			w.WriteHeader(http.StatusUnauthorized)
+			fmt.Fprint(w, "トークンが取得できません")
 			return
 		}
+
 		idToken := cookie.Value
 
 		// JWT の検証
@@ -33,8 +36,10 @@ func AuthCheck(next http.HandlerFunc) http.HandlerFunc {
 			// JWT が無効なら Handler に進まず別処理
 			logging.WriteErrorLog(err.Error(), true)
 			w.WriteHeader(http.StatusUnauthorized)
+			fmt.Fprint(w, err)
 			return
 		}
+
 		// http.RequestのContextにUIDを設定
 		ctx := context.WithValue(r.Context(), MyKey("uid"), token.UID)
 		// コンテキストを設定したhttp.Requestを次のハンドラに渡す
