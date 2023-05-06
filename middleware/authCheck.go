@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/smalake/kakebo-api/utils/firebase"
 	"github.com/smalake/kakebo-api/utils/logging"
@@ -16,20 +17,20 @@ func AuthCheck(next http.HandlerFunc) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
 		// クライアントから送られてきた JWT 取得
-		// authHeader := r.Header.Get("Authorization")
-		// idToken := strings.Replace(authHeader, "Bearer ", "", 1)
+		authHeader := r.Header.Get("Authorization")
+		idToken := strings.Replace(authHeader, "Bearer ", "", 1)
 
 		// CookieからJWTを取得
-		cookie, err := r.Cookie("kakebo")
-		if err != nil {
-			logging.WriteErrorLog(err.Error(), true)
-			w.WriteHeader(http.StatusUnauthorized)
-			fmt.Fprint(w, "トークンが取得できません")
-			fmt.Println(err)
-			return
-		}
+		// cookie, err := r.Cookie("kakebo")
+		// if err != nil {
+		// 	logging.WriteErrorLog(err.Error(), true)
+		// 	w.WriteHeader(http.StatusUnauthorized)
+		// 	fmt.Fprint(w, "トークンが取得できません")
+		// 	fmt.Println(err)
+		// 	return
+		// }
 
-		idToken := cookie.Value
+		// idToken := cookie.Value
 
 		// JWT の検証
 		token, err := firebase.Auth.VerifyIDToken(context.Background(), idToken)
